@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File List</title>
+</head>
+<body>
+    <h1>Список файлов</h1>
+    <form method="get" action="{% url 'list_files' %}">
+        <input type="text" name="public_key" placeholder="Введите публичный ключ">
+        <button type="submit">Получить список</button>
+    </form>
+    
+    {% if files %}
+        <ul>
+            {% for file in files %}
+                <li>
+                    {{ file.name }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Файлы не найдены или отсутствуют.</p>
+    {% endif %}
+</body>
+</html>
