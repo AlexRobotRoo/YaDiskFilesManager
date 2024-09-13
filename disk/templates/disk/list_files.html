@@ -20,8 +20,9 @@
 <body>
     <h1>Список файлов</h1>
     <form method="get" action="{% url 'list_files' %}">
-        <input type="text" name="public_key" value="{{ public_key }}" placeholder="Введите публичный ключ">
+        <input type="text" name="public_key" value="{% if public_key %}{{ public_key }}{% else %}{% endif %}" placeholder="Введите публичный ключ (ссылку)">
         <button type="submit">Получить список</button>
+        <button type="submit" name="refresh" value="true">Обновить список</button>
     </form>
     <p></p>
     <label for="fileFilter">Фильтр(тип файла):</label>

@@ -5,14 +5,25 @@ from typing import List, Dict
 from urllib.parse import quote_plus, unquote_plus
 import io
 import zipfile
+from django.core.cache import cache
+
+# 3600 секунд - 1 час
+CACHE_TIMEOUT = 3600
 
 # Получение списка файлов с ЯД
 def get_files(public_key: str) -> List[Dict]:
+    # Пробуем получить список файлов из кэша
+    cache_key = f'files_{public_key}'
+    cached_files = cache.get(cache_key)
+    if cached_files is not None:
+        return cached_files
+
     url = f"https://cloud-api.yandex.net/v1/disk/public/resources?public_key={public_key}"
     response = requests.get(url)
-    
+
     if response.status_code == 200:
         items = response.json()['_embedded']['items']
+        cache.set(cache_key, items, CACHE_TIMEOUT) # кэшируем данные
         return items
     else:
         return []
@@ -20,9 +31,13 @@ def get_files(public_key: str) -> List[Dict]:
 # Отображение списка файлов и ссылок для скачивания каждого файла
 def show_files(request):
     public_key = request.GET.get('public_key')
+    refresh = request.GET.get('refresh')
 
     files = []
     if public_key:
+        if refresh == "true":
+            clear_cache(public_key)
+
         files = get_files(public_key)
 
         for file in files:
@@ -78,3 +93,7 @@ def download_selected_files(request):
     response['Content-Disposition'] = 'attachment; filename="selected_files.zip"'
 
     return response
+
+def clear_cache(public_key: str):
+    cache_key = f'files_{public_key}'
+    cache.delete(cache_key)
