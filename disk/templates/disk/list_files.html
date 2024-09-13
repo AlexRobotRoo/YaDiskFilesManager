@@ -2,6 +2,20 @@
 <html>
 <head>
     <title>Список файлов</title>
+     <script>
+        function filterFiles() {
+            let filterType = document.getElementById("fileFilter").value;
+            let files = document.querySelectorAll(".file-item");
+            files.forEach(file => {
+                let mimeType = file.dataset.mime;
+                if (filterType === "all" || mimeType.startsWith(filterType)) {
+                    file.style.display = "block";
+                } else {
+                    file.style.display = "none";
+                }
+            });
+        }
+    </script>
 </head>
 <body>
     <h1>Список файлов</h1>
@@ -9,6 +23,14 @@
         <input type="text" name="public_key" value="{{ public_key }}" placeholder="Введите публичный ключ">
         <button type="submit">Получить список</button>
     </form>
+    <p></p>
+    <label for="fileFilter">Фильтр(тип файла):</label>
+    <select id="fileFilter" onchange="filterFiles()">
+        <option value="all">Все</option>
+        <option value="application">Документы</option>
+        <option value="image">Изображения</option>
+        <option value="video">Видео</option>
+    </select>
 
     {% if files %}
         <form method="post" action="{% url 'download_selected_files' %}">
