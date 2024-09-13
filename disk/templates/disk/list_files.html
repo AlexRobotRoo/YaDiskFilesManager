@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File List</title>
+    <title>Список файлов</title>
 </head>
 <body>
     <h1>Список файлов</h1>
     <form method="get" action="{% url 'list_files' %}">
-        <input type="text" name="public_key" placeholder="Введите публичный ключ">
+        <input type="text" name="public_key" value="{{ public_key }}" placeholder="Введите публичный ключ">
         <button type="submit">Получить список</button>
     </form>
-    
+
     {% if files %}
-        <ul>
-            {% for file in files %}
-                <li>
-                    {{ file.name }}
-                </li>
-            {% endfor %}
-        </ul>
+        <form method="post" action="{% url 'download_selected_files' %}">
+            {% csrf_token %}
+            <input type="hidden" name="public_key" value="{{ public_key }}">
+
+            <ul>
+                {% for file in files %}
+                    <li class="file-item" data-mime="{{ file.mime_type }}">
+                        <input type="checkbox" name="selected_files" value="{{ file.path }}">
+                        {{ file.name }}
+                        <a href="{{ file.download_url }}">Скачать</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <button type="submit">Скачать выбранные файлы</button>
+        </form>
     {% else %}
-        <p>Файлы не найдены или отсутствуют.</p>
+        <p>Загрузка данных... Подождите.</p>
     {% endif %}
 </body>
 </html>
